@@ -44,11 +44,16 @@ export function ArgumentForm() {
         }),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error("Failed to generate responses");
+        throw new Error(data.error || "无法生成回复");
       }
 
-      const data = await response.json();
+      if (!data.responses || !Array.isArray(data.responses) || data.responses.length === 0) {
+        throw new Error("API返回的响应格式不正确");
+      }
+
       setResponses(data.responses);
       
       // Save to history
@@ -63,7 +68,7 @@ export function ArgumentForm() {
       console.error("Error generating responses:", error);
       toast({
         title: "生成失败",
-        description: "无法生成回应，请稍后再试",
+        description: error instanceof Error ? error.message : "无法生成回应，请稍后再试",
         variant: "destructive",
       });
     } finally {

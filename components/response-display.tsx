@@ -15,6 +15,9 @@ export function ResponseDisplay({ responses }: ResponseDisplayProps) {
   const [copied, setCopied] = useState<Record<number, boolean>>({});
   const [liked, setLiked] = useState<Record<number, boolean>>({});
 
+  // 过滤掉空响应
+  const validResponses = responses.filter(resp => resp.trim().length > 0);
+
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopied({ ...copied, [index]: true });
@@ -27,10 +30,19 @@ export function ResponseDisplay({ responses }: ResponseDisplayProps) {
     setLiked({ ...liked, [index]: !liked[index] });
   };
 
+  // 如果没有有效响应，显示错误信息
+  if (validResponses.length === 0) {
+    return (
+      <div className="p-4 border rounded-md bg-muted">
+        <p className="text-center text-muted-foreground">无法生成回复，请尝试不同的输入。</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold mb-4">回复建议</h2>
-      {responses.map((response, index) => (
+      {validResponses.map((response, index) => (
         <motion.div
           key={index}
           initial={{ opacity: 0, y: 20 }}
@@ -43,9 +55,10 @@ export function ResponseDisplay({ responses }: ResponseDisplayProps) {
                 <span>回复 {index + 1}</span>
                 <div className="flex items-center gap-2">
                   <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8"
+                    className={cn(
+                      "h-8 w-8",
+                      "hover:bg-accent hover:text-accent-foreground" // ghost variant
+                    )}
                     onClick={() => toggleLike(index)}
                   >
                     <ThumbsUp 
@@ -56,9 +69,10 @@ export function ResponseDisplay({ responses }: ResponseDisplayProps) {
                     />
                   </Button>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
+                    className={cn(
+                      "h-8 w-8",
+                      "hover:bg-accent hover:text-accent-foreground" // ghost variant
+                    )}
                     onClick={() => copyToClipboard(response, index)}
                   >
                     {copied[index] ? (
