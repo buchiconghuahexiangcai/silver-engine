@@ -1,0 +1,40 @@
+我想做一个《吵架包赢》，它是一个网站，主要功能是当用户输入一段被骂的话以后，通过API调用模型，结合合适的prompt，返回反击的语句，帮助用户赢得吵架
+
+#技术栈
+NextJS
+Typescript
+不需要使用数据库，如果需要存储，先存到localStorage里
+
+#界面
+考虑用户主要是手机用户，请保证手机访问和电脑访问，都一样美观
+考虑到我们的用户是微信用户，你的配色可以参考微信的配色
+#功能
+用户输入“对方的话”
+用户选择“语气强烈程度”，是一个从1到10可以拖动的小玩意儿；用户选择吵架风格，是一些名嘴的名字供选择，选择后输出该名嘴风格的回击
+用户点击“开始吵架”，回复3条牛逼的吵架内容
+回复内容你需要使用大模型。我们使用openrouter上面的DeepSeek V3模型吧。这是它的API文档
+
+这个API我的key是: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
+这个API的示例代码如下：
+from openai import OpenAI
+
+client = OpenAI(
+base_url="https://openrouter.ai/api/v1",
+api_key="<OPENROUTER_API_KEY>",
+)
+
+completion = client.chat.completions.create(
+extra_headers={
+"HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
+"X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
+},
+extra_body={},
+model="deepseek/deepseek-chat-v3-0324:free",
+messages=[
+{
+"role": "user",
+"content": "What is the meaning of life?"
+}
+]
+)
+print(completion.choices[0].message.content)
